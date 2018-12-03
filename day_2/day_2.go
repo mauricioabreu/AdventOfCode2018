@@ -7,16 +7,18 @@ import (
 )
 
 func main() {
-	fmt.Printf("Checksum: %d\n", CheckSumBoxes())
+	lines := readLines("day_2_input.txt")
+	fmt.Printf("Checksum: %d\n", CheckSumBoxes(lines))
+	fmt.Printf("Similar letters: %s\n", FindSimilarity(lines))
 }
 
 // CheckSumBoxes : Calculate the checksum of boxes whose
 // IDs contain a certain number of repeated letters
-func CheckSumBoxes() int {
+func CheckSumBoxes(lines []string) int {
 	goodBoxes := make(map[int]int, 0)
 	lookUpNumbers := []int{2, 3}
 
-	for _, boxID := range readLines("day_2_input.txt") {
+	for _, boxID := range lines {
 		lettersOccurrence := countLetterOccurrence(boxID)
 		// Try to find the boxes that have the exactly number
 		// of repeated letters in the box
@@ -31,6 +33,45 @@ func CheckSumBoxes() int {
 		}
 	}
 	return checkSum(goodBoxes)
+}
+
+func commonLetters(lines []string) (string, string) {
+	var resultCompareFrom, resultCompareTo string
+
+	for x := 0; x < len(lines); x++ {
+		compareFrom := lines[x]
+		for y := x; y < len(lines); y++ {
+			compareTo := lines[y]
+			if x == y {
+				continue
+			}
+
+			diff := 0
+			for l := 0; l < len(compareTo); l++ {
+				if compareFrom[l:l+1] != compareTo[l:l+1] {
+					diff++
+				}
+			}
+			if diff == 0 || diff == 1 {
+				resultCompareFrom, resultCompareTo = lines[x], lines[y]
+			}
+		}
+	}
+	return resultCompareFrom, resultCompareTo
+}
+
+// FindSimilarity : find the most common letters in a large input
+// of words
+func FindSimilarity(lines []string) string {
+	var similarities string
+	compareFrom, compareTo := commonLetters(lines)
+
+	for x := 0; x < len(compareFrom); x++ {
+		if compareFrom[x] == compareTo[x] {
+			similarities += string(compareFrom[x])
+		}
+	}
+	return similarities
 }
 
 // Read lines of a file into an array
